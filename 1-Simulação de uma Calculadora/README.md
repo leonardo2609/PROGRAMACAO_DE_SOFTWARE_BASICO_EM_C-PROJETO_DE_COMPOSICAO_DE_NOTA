@@ -1,76 +1,154 @@
-# Projeto: Notas Musicais com Arduino
+# Projeto: Calculadora Simples com Arduino
 
-Este projeto implementa uma melodia simples usando um Arduino e um buzzer. O código define uma sequência de notas e suas durações para tocar uma música básica. É ideal para iniciantes que desejam entender o uso de tons e da função `tone()` no Arduino.
+Este projeto implementa uma calculadora básica no Arduino, permitindo que o usuário realize operações matemáticas (adição, subtração, multiplicação, e divisão) via comunicação serial. O projeto também permite redefinir o valor inicial da variável e encerrar o programa.
 
 ## Visão Geral
 
-Neste projeto, um buzzer é conectado ao Arduino e reproduz uma melodia específica. Utilizamos a função `tone()` para emitir diferentes frequências sonoras, correspondentes a notas musicais. Cada nota tem uma duração associada, o que permite a criação de uma sequência musical.
+A calculadora recebe entradas do usuário por meio do monitor serial e realiza as operações desejadas com base em um valor inicial, `x`, que pode ser alterado ao longo da execução. Esse projeto é ideal para iniciantes em Arduino, pois demonstra o uso de variáveis, manipulação de entrada/saída serial e estrutura de controle.
 
 ### Componentes Necessários
 
 - 1 Arduino (ou um simulador como o Tinkercad)
-- 1 Buzzer passivo
-- Fios de conexão
 
-### Montagem
+### Funcionamento
 
-1. Conecte o pino positivo do buzzer ao pino digital 10 do Arduino.
-2. Conecte o pino negativo do buzzer ao GND.
+1. **Valor Inicial de `x`:** O programa solicita ao usuário um valor inicial para `x`.
+2. **Menu de Operações:** O menu lista as operações disponíveis:
+   - `a`: Adição
+   - `s`: Subtração
+   - `d`: Divisão
+   - `m`: Multiplicação
+   - `t`: Trocar o valor de `x`
+   - `q`: Encerrar o programa
+3. **Execução das Operações:** Após escolher a operação, o usuário deve fornecer um valor adicional (por exemplo, `y` para adição), e o Arduino exibirá o resultado.
+4. **Tratamento de Erros:** Inclui verificação para evitar divisão por zero e erro caso o usuário insira valores não numéricos.
 
 ### Código
 
-O código consiste em três partes principais:
-1. Definição das notas musicais e suas frequências.
-2. Vetores para armazenar as notas (`melodia[]`) e suas durações (`duracaoNota[]`).
-3. Funções `setup()` e `loop()` para configurar o pino e tocar a sequência de notas.
+O código é dividido nas seguintes funções:
+
+1. **`setup()`:** Inicializa o monitor serial e define o valor inicial de `x`.
+2. **`loop()`:** Recebe a entrada do usuário para executar a operação selecionada. Controla a execução de operações e chama funções de exibição e manipulação de entrada.
+3. **`exibirMenu()`:** Mostra as opções de operação disponíveis.
+4. **`lerNumero()`:** Lê e valida o valor numérico inserido pelo usuário, garantindo que apenas números sejam aceitos.
+5. **`limparBuffer()`:** Limpa o buffer serial para evitar entradas inválidas.
+
+### Código Completo
 
 ```cpp
-#define NOTE_AS4 466
-#define NOTE_B4  494
-#define NOTE_DS5 622
-
-int melodia[] = {
-  NOTE_AS4, NOTE_AS4, NOTE_AS4, NOTE_AS4,
-  NOTE_AS4, NOTE_B4, NOTE_DS5, NOTE_AS4, NOTE_AS4
-}; 
-
-int duracaoNota[] = {
-  4, 4 ,4 ,4 ,6 ,6 ,6 ,4 ,4
-}; 
+float x, y, z, w, m;
+char opcao;
 
 void setup() {
-  pinMode(10, OUTPUT);
+  Serial.begin(9600);  
+
+  Serial.println("O valor de x sera alterado conforme voce vai utilizando as funcoes\nPara alterar basta digitar t depois de definir o valor de x\nDigite o valor inicial de x: ");
+  x = lerNumero();  
+  exibirMenu();     
 }
 
 void loop() {
-  for (int nota = 0; nota < 9; nota++) {
-    int duracao = 1000 / duracaoNota[nota];
-    tone(10, melodia[nota], duracao);
+  if (Serial.available() > 0) {
+    opcao = Serial.read();
+    
+    if (opcao != 'a' && opcao != 's' && opcao != 'd' && opcao != 'm' && opcao != 't' && opcao != 'q') {
+      Serial.println("Opcao invalida. Escolha uma operacao valida.");
+      exibirMenu();
+      return; 
+    }
 
-    int pausaNotas = duracao * 1.70;
-    delay(pausaNotas);
+    switch (opcao) {
+      case 'a':  
+        Serial.println("Digite o valor de y para adicionar a x: ");
+        y = lerNumero();
+        x = x + y;
+        Serial.print("Resultado: ");
+        Serial.println(x);
+        break;
 
-    noTone(10); 
+      case 's':  
+        Serial.println("Digite o valor de z para subtrair de x: ");
+        z = lerNumero();
+        x = x - z;
+        Serial.print("Resultado: ");
+        Serial.println(x);
+        break;
+
+      case 'd':  
+        Serial.println("Digite o valor de w (Divisor) para dividir x (Dividendo): ");
+        w = lerNumero();
+        if (x == 0 || w == 0) {
+          Serial.println("Erro: Nao e possivel dividir por zero.");
+        } else {
+          x = x / w;
+          Serial.print("Resultado: ");
+          Serial.println(x);
+        }
+        break;
+
+      case 'm':  
+        Serial.println("Digite o valor de m para multiplicar com x: ");
+        m = lerNumero();
+        x = x * m;
+        Serial.print("Resultado: ");
+        Serial.println(x);
+        break;
+
+      case 't':  
+        Serial.println("Digite o novo valor de x: ");
+        x = lerNumero();
+        Serial.print("Novo valor de x: ");
+        Serial.println(x);
+        break;
+
+      case 'q':  
+        Serial.println("Fechando o programa...");
+        while (true);  
+        break;
+    } 
+    exibirMenu();
   }
-  delay(3000); 
+}
+
+void exibirMenu() {
+  Serial.println("Escolha uma operacao: ");
+  Serial.println("a - Adicao");
+  Serial.println("s - Subtracao");
+  Serial.println("d - Divisao");
+  Serial.println("m - Multiplicacao");
+  Serial.println("t - Trocar o valor de x");
+  Serial.println("q - Fechar o programa");
+}
+
+float lerNumero() {
+  while (true) {
+    while (Serial.available() == 0) {}  
+    if (Serial.peek() == '\n') {        
+      Serial.read();  
+    }
+
+    if (Serial.available() > 0 && (isDigit(Serial.peek()) || Serial.peek() == '-')) {
+      return Serial.parseFloat();  
+    } else {
+      limparBuffer(); 
+      Serial.println("Erro: Apenas numeros sao aceitos. Digite um numero, por favor: ");
+    }
+  }
+}
+
+void limparBuffer() {
+  while (Serial.available() > 0) {
+    Serial.read(); 
+  }
 }
 ```
 
-### Explicação do Código
-
-1. **Notas e Durações:** As notas são definidas por suas frequências (em Hertz), e cada nota possui uma duração proporcional a seu valor.
-2. **Função `setup()`:** Define o pino 10 como saída para o buzzer.
-3. **Função `loop()`:** 
-   - Reproduz cada nota da melodia, utilizando a função `tone()` para emitir a frequência correspondente.
-   - Define uma pausa entre as notas e finaliza o som com `noTone()`.
-   - Após a execução da melodia completa, aguarda 3 segundos antes de repetir.
-
 ### Simulação
 
-Este projeto pode ser facilmente simulado no [Tinkercad](https://www.tinkercad.com/), permitindo que os usuários testem o código e a configuração sem hardware físico.
+Este projeto pode ser simulado no [Tinkercad](https://www.tinkercad.com/), permitindo que os usuários testem a calculadora e vejam o resultado diretamente no monitor serial.
 
 ---
 
 ## Autor
 
-Projeto disponível em: [Tinkercad - Notas Musicais com Arduino](https://www.tinkercad.com/things/hlDFiHaVunb-notas-musicais-com-arduino-)
+Projeto disponível em: [Tinkercad - Calculadora Simples](https://www.tinkercad.com/things/bavkcCIkFdj-calculadorasimples/editel?returnTo=https%3A%2F%2Fwww.tinkercad.com%2Fdashboard%2Fdesigns%2Fcircuits&sharecode=d6SRgywW3BVtEwpWs6RFbBZC_pC5s_fkOQm-OF4h9JQ)
