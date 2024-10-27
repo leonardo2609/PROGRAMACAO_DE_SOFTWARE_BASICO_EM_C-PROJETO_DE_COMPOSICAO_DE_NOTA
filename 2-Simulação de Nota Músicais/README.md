@@ -73,4 +73,4 @@ Este projeto pode ser facilmente simulado no [Tinkercad](https://www.tinkercad.c
 
 ## Autor
 
-Projeto disponível em: [Tinkercad - Notas Musicais com Arduino](https://www.tinkercad.com/things/hlDFiHaVunb-notas-musicais-com-arduino-)
+Projeto disponível em: [Tinkercad - Notas Musicais com Arduino](https://www.tinkercad.com/things/aSQ2VGbaSUx-notas-musicais-com-arduino-)
