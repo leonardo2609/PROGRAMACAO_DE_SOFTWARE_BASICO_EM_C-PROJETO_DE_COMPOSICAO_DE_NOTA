@@ -4,6 +4,14 @@ Este repositório contém três projetos distintos, cada um explorando conceitos
 
 ---
 
+## Autores
+1. Ailton Alves
+2. Cauan Duarte
+3. Leonardo Dionizio
+4. Letícia Simões
+
+---
+
 ## Projeto 1: Calculadora Serial Simples com Arduino
 
 [Link do Projeto no Tinkercad](https://www.tinkercad.com/things/bavkcCIkFdj-calculadorasimples/editel?returnTo=https%3A%2F%2Fwww.tinkercad.com%2Fdashboard%2Fdesigns%2Fcircuits&sharecode=d6SRgywW3BVtEwpWs6RFbBZC_pC5s_fkOQm-OF4h9JQ)
